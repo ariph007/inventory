@@ -1,6 +1,7 @@
 package com.lawencon.inventory.helper;
 
 import com.lawencon.inventory.model.response.ApiErrorResponse;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +53,15 @@ public class ApiExceptionHandler {
     return new ResponseEntity<>(
         ApiErrorResponse.builder().message("No route for this request").status(HttpStatus.INTERNAL_SERVER_ERROR.value()).time(ZonedDateTime.now()).build(),
         HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(CustomResponseException.class)
+  public ResponseEntity<Object> handleCustomServiceException(CustomResponseException ex) {
+    Map<String, Object> errorResponse = new HashMap<>();
+    errorResponse.put("message", ex.getMessage());
+    errorResponse.put("status", ex.getStatus().value());
+    errorResponse.put("time", LocalDateTime.now());
+    return ResponseEntity.status(ex.getStatus()).body(errorResponse);
   }
 
 }
