@@ -5,7 +5,7 @@ import com.lawencon.inventory.model.request.CreateItemRequest;
 import com.lawencon.inventory.model.request.PagingRequest;
 import com.lawencon.inventory.model.request.UpdateItemRequest;
 import com.lawencon.inventory.model.response.ItemResponse;
-import com.lawencon.inventory.model.response.ListItemResponse;
+import com.lawencon.inventory.model.response.Responses;
 import com.lawencon.inventory.model.response.PageResponse;
 import com.lawencon.inventory.persistence.entity.Item;
 import com.lawencon.inventory.persistence.repository.ItemRepository;
@@ -38,13 +38,13 @@ public class ItemServiceImpl implements ItemService {
   }
 
   @Override
-  public ListItemResponse findAll(PagingRequest pagingRequest, Boolean showStock) {
+  public Responses<List<ItemResponse>> findAll(PagingRequest pagingRequest, Boolean showStock) {
     Pageable pageable = PageRequest.of(pagingRequest.getPage(), pagingRequest.getPageSize());
 
     Page<Item> items = itemRepository.findAll(pageable);
     List<Item> listOfItem = items.getContent();
     List<ItemResponse> content = listOfItem.stream().map(item-> mappingToResponse(item, showStock)).toList();
-    ListItemResponse response = new ListItemResponse();
+    Responses<List<ItemResponse>> response = new Responses<>();
     response.setData(content);
     response.setPageResponse(PageResponse.builder().pageNo(items.getNumber()).pageSize(
         items.getSize()).totalElements(items.getTotalElements()).totalPages(items.getTotalPages()).last(items.isLast()).build());
@@ -80,6 +80,11 @@ public class ItemServiceImpl implements ItemService {
     return itemRepository.findById(id).orElseThrow(
         () -> new CustomResponseException(HttpStatus.BAD_REQUEST, "Item not found")
     );
+  }
+
+  @Override
+  public boolean existById(Long id) {
+    return itemRepository.existsById(id);
   }
 
   private ItemResponse mappingToResponse(Item item, Boolean showStock){

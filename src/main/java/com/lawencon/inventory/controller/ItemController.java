@@ -4,10 +4,11 @@ import com.lawencon.inventory.model.request.CreateItemRequest;
 import com.lawencon.inventory.model.request.PagingRequest;
 import com.lawencon.inventory.model.request.UpdateItemRequest;
 import com.lawencon.inventory.model.response.ItemResponse;
-import com.lawencon.inventory.model.response.ListItemResponse;
+import com.lawencon.inventory.model.response.Responses;
 import com.lawencon.inventory.model.response.TransactionResponse;
 import com.lawencon.inventory.service.ItemService;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,7 +37,7 @@ public class ItemController {
   }
 
   @GetMapping(value = "items", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<ListItemResponse> findAll(PagingRequest pagingRequest,
+  public ResponseEntity<Responses<List<ItemResponse>>> findAll(PagingRequest pagingRequest,
       @RequestParam(required = false) Boolean showStock) {
     return ResponseEntity.ok(itemService.findAll(pagingRequest, showStock));
   }

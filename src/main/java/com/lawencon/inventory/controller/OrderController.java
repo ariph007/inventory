@@ -1,12 +1,15 @@
 package com.lawencon.inventory.controller;
 
 import com.lawencon.inventory.model.request.CreateInventoryRequest;
+import com.lawencon.inventory.model.request.CreateOrderRequest;
 import com.lawencon.inventory.model.request.PagingRequest;
 import com.lawencon.inventory.model.request.UpdateInventoryRequest;
+import com.lawencon.inventory.model.request.UpdateOrderRequest;
 import com.lawencon.inventory.model.response.InventoryResponse;
+import com.lawencon.inventory.model.response.OrderResponse;
 import com.lawencon.inventory.model.response.Responses;
 import com.lawencon.inventory.model.response.TransactionResponse;
-import com.lawencon.inventory.service.InventoryService;
+import com.lawencon.inventory.service.OrderService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -25,46 +28,46 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1")
 @AllArgsConstructor
-public class InventoryController {
+public class OrderController {
 
-  private final InventoryService inventoryService;
+  private final OrderService orderService;
 
-  @GetMapping(value = "inventories/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<InventoryResponse> findById(@PathVariable Long id) {
-    return ResponseEntity.ok(inventoryService.findById(id));
+  @GetMapping(value = "orders/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<OrderResponse> findById(@PathVariable Long id) {
+    return ResponseEntity.ok(orderService.findById(id));
   }
 
-  @GetMapping(value = "inventories", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Responses<List<InventoryResponse>>> findAll(PagingRequest pagingRequest) {
-    return ResponseEntity.ok(inventoryService.findAll(pagingRequest));
+  @GetMapping(value = "orders", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Responses<List<OrderResponse>>> findAll(PagingRequest pagingRequest) {
+    return ResponseEntity.ok(orderService.findAll(pagingRequest));
   }
 
-  @PostMapping(value = "inventories", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "orders", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<TransactionResponse> add(
-      @RequestBody @Valid CreateInventoryRequest createInventoryRequest) {
-    inventoryService.add(createInventoryRequest);
+      @RequestBody @Valid CreateOrderRequest createOrderRequest) {
+    orderService.add(createOrderRequest);
     return ResponseEntity.ok(TransactionResponse.builder()
         .status(HttpStatus.OK.value())
-        .message("Inventory successfully added.")
+        .message("Order successfully added.")
         .build());
   }
 
-  @PutMapping(value = "inventories", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PutMapping(value = "orders", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<TransactionResponse> edit(
-      @Valid @RequestBody UpdateInventoryRequest updateInventoryRequest) {
-    inventoryService.edit(updateInventoryRequest);
+      @Valid @RequestBody UpdateOrderRequest updateOrderRequest) {
+    orderService.edit(updateOrderRequest);
     return ResponseEntity.ok(TransactionResponse.builder()
         .status(HttpStatus.OK.value())
-        .message("Inventory successfully updated.")
+        .message("Order successfully updated.")
         .build());
   }
 
-  @DeleteMapping(value = "inventories/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @DeleteMapping(value = "orders/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<TransactionResponse> delete(@PathVariable Long id) {
-    inventoryService.deleteById(id);
+    orderService.deleteById(id);
     return ResponseEntity.ok(TransactionResponse.builder()
         .status(HttpStatus.OK.value())
-        .message("Inventory successfully deleted.")
+        .message("Order successfully deleted.")
         .build());
   }
 }

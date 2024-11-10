@@ -1,7 +1,6 @@
 package com.lawencon.inventory.model.request;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
+import com.lawencon.inventory.converter.ToUpperCase;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,12 +11,14 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateItemRequest {
+public class CreateOrderRequest {
 
-  @NotBlank(message = "name can't be blank")
-  @NotNull(message = "name can't be empty")
-  private String name;
+  @NotNull(message = "Item id can't be empty")
+  private Long itemId;
 
-  @NotNull(message = "price can't be empty")
+  @NotNull(message = "Quantity can't be empty")
+  private Integer quantity;
+
+  @NotNull(message = "Price can't be empty")
   private Double price;
 }

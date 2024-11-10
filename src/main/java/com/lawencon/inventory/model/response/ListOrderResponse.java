@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ListItemResponse{
-  private List<ItemResponse> data;
+public class ListOrderResponse<T> {
+  private T data;
   private PageResponse pageResponse;
 }

@@ -16,8 +16,10 @@ public class UpdateItemRequest {
   @NotNull(message = "id is required.")
   private Long id;
 
+  @NotNull(message = "name can't be empty")
   private String name;
 
+  @NotNull(message = "price can't be empty")
   private Double price;
 
   @NotNull(message = "version is required.")

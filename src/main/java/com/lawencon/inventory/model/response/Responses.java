@@ -1,6 +1,5 @@
 package com.lawencon.inventory.model.response;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ListInventoryResponse {
-  private List<InventoryResponse> data;
+public class Responses<T> {
+  private T data;
   private PageResponse pageResponse;
 }

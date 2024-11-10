@@ -5,7 +5,7 @@ import com.lawencon.inventory.model.request.CreateInventoryRequest;
 import com.lawencon.inventory.model.request.PagingRequest;
 import com.lawencon.inventory.model.request.UpdateInventoryRequest;
 import com.lawencon.inventory.model.response.InventoryResponse;
-import com.lawencon.inventory.model.response.ListInventoryResponse;
+import com.lawencon.inventory.model.response.Responses;
 import com.lawencon.inventory.model.response.PageResponse;
 import com.lawencon.inventory.persistence.entity.Inventory;
 import com.lawencon.inventory.persistence.entity.Inventory.Type;
@@ -16,7 +16,6 @@ import com.lawencon.inventory.service.ItemService;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,13 +35,13 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
-  public ListInventoryResponse findAll(PagingRequest pagingRequest) {
+  public Responses<List<InventoryResponse>> findAll(PagingRequest pagingRequest) {
     Pageable pageable = PageRequest.of(pagingRequest.getPage(), pagingRequest.getPageSize());
 
     Page<Inventory> inventories = inventoryRepository.findAll(pageable);
     List<Inventory> listOfItem = inventories.getContent();
     List<InventoryResponse> content = listOfItem.stream().map(this::mappingToResponse).toList();
-    ListInventoryResponse response = new ListInventoryResponse();
+    Responses<List<InventoryResponse>> response = new Responses<>();
     response.setData(content);
     response.setPageResponse(PageResponse.builder().pageNo(inventories.getNumber()).pageSize(
         inventories.getSize()).totalElements(inventories.getTotalElements()).totalPages(inventories.getTotalPages()).last(inventories.isLast()).build());
@@ -80,13 +79,13 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
-  public boolean existByItemId(Long id) {
-    return inventoryRepository.existsByItemId(id);
+  public Integer getStockByItemId(Long id) {
+    return inventoryRepository.getStockByItemId(id);
   }
 
   @Override
-  public Integer getStockByItemId(Long id) {
-    return inventoryRepository.getStockByItemId(id);
+  public void save(Inventory inventory) {
+    inventoryRepository.saveAndFlush(inventory);
   }
 
   private InventoryResponse mappingToResponse(Inventory inventory) {
@@ -95,6 +94,11 @@ public class InventoryServiceImpl implements InventoryService {
     response.setItemId(inventory.getItem().getId());
     response.setItemName(inventory.getItem().getName());
     return response;
+  }
+
+  @Override
+  public boolean existByItemId(Long id) {
+    return inventoryRepository.existsByItemId(id);
   }
 
   private Item validateItemExist(Long id){
