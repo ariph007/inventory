@@ -52,14 +52,13 @@ public class ItemController {
   }
 
   @PutMapping(value = "items", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> edit(
+  public ResponseEntity<TransactionResponse> edit(
       @Valid @RequestBody UpdateItemRequest updateItemRequest) {
     itemService.edit(updateItemRequest);
-//    return ResponseEntity.ok(TransactionResponse.builder()
-//        .status(HttpStatus.OK.value())
-//        .message("Item successfully updated.")
-//        .build());
-    return ResponseEntity.ok("success");
+    return ResponseEntity.ok(TransactionResponse.builder()
+        .status(HttpStatus.OK.value())
+        .message("Item successfully updated.")
+        .build());
   }
 
   @DeleteMapping(value = "items/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

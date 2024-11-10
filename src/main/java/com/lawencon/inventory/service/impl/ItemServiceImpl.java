@@ -9,10 +9,14 @@ import com.lawencon.inventory.model.response.ListItemResponse;
 import com.lawencon.inventory.model.response.PageResponse;
 import com.lawencon.inventory.persistence.entity.Item;
 import com.lawencon.inventory.persistence.repository.ItemRepository;
+import com.lawencon.inventory.service.InventoryService;
 import com.lawencon.inventory.service.ItemService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,12 +28,13 @@ import org.springframework.stereotype.Service;
 public class ItemServiceImpl implements ItemService {
   private final ItemRepository itemRepository;
 
+  @Setter(onMethod_ = @Autowired, onParam_ = @Lazy)
+  private InventoryService inventoryService;
+
+
   @Override
   public ItemResponse findById(Long id, Boolean showStock) {
-    Item item = itemRepository.findById(id).orElseThrow(
-        () -> new CustomResponseException(HttpStatus.BAD_REQUEST, "Item not found")
-    );
-    return mappingToResponse(item, showStock);
+    return mappingToResponse(getById(id), showStock);
   }
 
   @Override
@@ -55,6 +60,10 @@ public class ItemServiceImpl implements ItemService {
 
   @Override
   public void deleteById(Long id) {
+    boolean isItemUsed = inventoryService.existByItemId(id);
+    if(isItemUsed){
+      throw new CustomResponseException(HttpStatus.BAD_REQUEST, "can't delete item that used in transaction");
+    }
     Item item = getById(id);
     itemRepository.delete(item);
   }
@@ -64,7 +73,6 @@ public class ItemServiceImpl implements ItemService {
     Item item = new Item();
     BeanUtils.copyProperties(createItemRequest, item);
     itemRepository.saveAndFlush(item);
-
   }
 
   @Override
@@ -78,8 +86,8 @@ public class ItemServiceImpl implements ItemService {
     ItemResponse itemResponse = new ItemResponse();
     BeanUtils.copyProperties(item, itemResponse);
     if(showStock != null && showStock){
-      //! Add stock field
-      System.out.println("Count stock");
+      Integer stock = inventoryService.getStockByItemId(item.getId());
+      itemResponse.setStock(stock);
     }
     return itemResponse;
   }
