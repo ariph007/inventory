@@ -15,7 +15,7 @@ import org.hibernate.annotations.Where;
 
 
 @Entity
-@Table(name = "item", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})})
+@Table(name = "item", uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "deleted_at"})})
 @Getter
 @Setter
 @ToString
