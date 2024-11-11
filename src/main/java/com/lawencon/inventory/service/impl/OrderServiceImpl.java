@@ -98,6 +98,10 @@ public class OrderServiceImpl implements OrderService {
     BeanUtils.copyProperties(createOrderRequest, order);
     Item item = itemService.getById(createOrderRequest.getItemId());
     order.setItem(item);
+
+    Order latestOrder = orderRepository.findTopByOrderByOrderNoDesc().orElse(null);
+    Integer newOrderNo = latestOrder != null ? latestOrder.getOrderNo() + 1: 1;
+    order.setOrderNo(newOrderNo);
     Order orderSuccess = orderRepository.saveAndFlush(order);
     Inventory inventory = new Inventory();
     inventory.setType(Type.W);
@@ -119,7 +123,9 @@ public class OrderServiceImpl implements OrderService {
     OrderResponse orderResponse = new OrderResponse();
     BeanUtils.copyProperties(order, orderResponse);
     String prefix = "O";
-    orderResponse.setOrderNo(prefix.concat(String.valueOf(order.getId())));
+    orderResponse.setOrderNo(prefix + order.getOrderNo());
+    orderResponse.setItemId(order.getItem().getId());
+    orderResponse.setItemName(order.getItem().getName());
     return orderResponse;
   }
 

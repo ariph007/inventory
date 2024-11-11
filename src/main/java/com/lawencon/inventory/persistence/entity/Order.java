@@ -38,4 +38,7 @@ public class Order extends AuditableEntity{
 
     @Column(name = "price", nullable = false)
     private Double price;
+
+    @Column(name = "order_no", nullable = false)
+    private Integer orderNo;
 }
