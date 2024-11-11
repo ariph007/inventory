@@ -42,13 +42,13 @@ public class StockBalanceServiceImpl implements StockBalanceService {
     StockBalance stock;
     if (stockBalance.isPresent()) {
       stock = stockBalance.get();
-      Integer currentTopUp = stock.getTopup();
+      Integer currentWithdraw = stock.getWithdraw();
       if (type == Type.T) {
         Integer updatedTopUp = stock.getCurrentBalance() + quantity;
         stock.setTopup(updatedTopUp);
         stock.setCurrentBalance(stock.getCurrentBalance() + quantity);
       } else if (type == Type.W) {
-        Integer updatedWithdraw = currentTopUp - quantity;
+        Integer updatedWithdraw = currentWithdraw - quantity;
         stock.setWithdraw(updatedWithdraw);
         stock.setCurrentBalance(stock.getCurrentBalance() - quantity);
       } else {
@@ -70,5 +70,10 @@ public class StockBalanceServiceImpl implements StockBalanceService {
       }
     }
     stockBalanceRepository.save(stock);
+  }
+
+  @Override
+  public void saveStock(StockBalance stockBalance) {
+    stockBalanceRepository.saveAndFlush(stockBalance);
   }
 }

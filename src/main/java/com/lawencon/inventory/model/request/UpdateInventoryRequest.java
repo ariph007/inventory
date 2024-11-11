@@ -22,8 +22,8 @@ public class UpdateInventoryRequest {
   @NotNull(message = "quantity can't be empty")
   private Integer quantity;
 
-  @NotBlank(message = "item id can't be blank")
-  private Inventory.Type type;
+  @NotBlank(message = "type can't be blank")
+  private String type;
 
   @NotNull(message = "version is required.")
   private Long version;

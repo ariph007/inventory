@@ -55,11 +55,25 @@ public class OrderServiceImpl implements OrderService {
     return response;
   }
 
+  @Transactional
   @Override
   public void edit(UpdateOrderRequest updateOrderRequest) {
+      Optional<StockBalance> stockBalance = stockBalanceService.getStockByItemId(updateOrderRequest.getItemId());
+      if(stockBalance.isEmpty()){
+          throw new CustomResponseException(HttpStatus.BAD_REQUEST, "Stock balance not found for the requested item.");
+      }
+      Integer currentBalance = stockBalance.get().getCurrentBalance();
       Order order = getById(updateOrderRequest.getId());
+      Integer differenceQuantity = order.getQuantity();
       BeanUtils.copyProperties(updateOrderRequest, order);
       orderRepository.saveAndFlush(order);
+      Integer newBalance = (currentBalance + differenceQuantity) - updateOrderRequest.getQuantity();
+      stockBalance.get().setCurrentBalance(newBalance);
+      Integer currentWithdraw = stockBalance.get().getWithdraw();
+
+      Integer newWithdraw =  currentWithdraw + differenceQuantity;
+      stockBalance.get().setWithdraw(newWithdraw);
+      stockBalanceService.saveStock(stockBalance.get());
   }
 
   @Override

@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface StockBalanceService {
   Optional<StockBalance> getStockByItemId(Long id);
   void updateStock(Long itemId, Integer quantity, Type type);
+  void saveStock(StockBalance stockBalance);
 }

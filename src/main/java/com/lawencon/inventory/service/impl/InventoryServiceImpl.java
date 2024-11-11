@@ -52,8 +52,18 @@ public class InventoryServiceImpl implements InventoryService {
   @Override
   public void edit(UpdateInventoryRequest updateInventoryRequest) {
     Inventory inventory =  getById(updateInventoryRequest.getId());
+    validateItemExists(updateInventoryRequest.getItemId());
+    Type type = validateType(updateInventoryRequest.getType());
+    inventory.setType(type);
     BeanUtils.copyProperties(updateInventoryRequest, inventory);
     inventoryRepository.saveAndFlush(inventory);
+  }
+
+  private void validateItemExists(Long itemId) {
+    boolean isItemExist = itemService.existById(itemId);
+    if(!isItemExist){
+      throw new CustomResponseException(HttpStatus.BAD_REQUEST, "Item not found");
+    }
   }
 
   @Override
@@ -64,7 +74,7 @@ public class InventoryServiceImpl implements InventoryService {
   @Override
   public void add(CreateInventoryRequest createInventoryRequest) {
     Item item = validateItemExist(createInventoryRequest.getItemId());
-    Type type = validateType(createInventoryRequest);
+    Type type = validateType(createInventoryRequest.getType());
     Inventory inventory = new Inventory();
     BeanUtils.copyProperties(createInventoryRequest, inventory);
     inventory.setItem(item);
@@ -107,8 +117,8 @@ public class InventoryServiceImpl implements InventoryService {
      return itemService.getById(id);
   }
 
-  private Type validateType(CreateInventoryRequest createInventoryRequest){
-    Type type = Type.valueOf(createInventoryRequest.getType());
+  private Type validateType(String typeRequest){
+    Type type = Type.valueOf(typeRequest);
     if(type.name() != "T" && type.name() != "W"){
       throw  new CustomResponseException(HttpStatus.BAD_REQUEST,"Wrong type");
     }

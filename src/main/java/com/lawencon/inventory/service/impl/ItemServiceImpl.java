@@ -39,6 +39,7 @@ public class ItemServiceImpl implements ItemService {
   private InventoryService inventoryService;
 
 
+  @Transactional
   @Override
   public ItemResponse findById(Long id, Boolean showStock) {
     return mappingToResponse(getById(id), showStock);
