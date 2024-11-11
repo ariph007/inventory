@@ -13,6 +13,7 @@ import com.lawencon.inventory.persistence.entity.Item;
 import com.lawencon.inventory.persistence.repository.InventoryRepository;
 import com.lawencon.inventory.service.InventoryService;
 import com.lawencon.inventory.service.ItemService;
+import com.lawencon.inventory.service.StockBalanceService;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -26,8 +27,8 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class InventoryServiceImpl implements InventoryService {
   private final InventoryRepository inventoryRepository;
-  private ItemService itemService;
-
+  private final ItemService itemService;
+  private final StockBalanceService stockBalanceService;
 
   @Override
   public InventoryResponse findById(Long id) {
@@ -68,7 +69,8 @@ public class InventoryServiceImpl implements InventoryService {
     BeanUtils.copyProperties(createInventoryRequest, inventory);
     inventory.setItem(item);
     inventory.setType(type);
-    inventoryRepository.saveAndFlush(inventory);
+    Inventory savedInventory = inventoryRepository.saveAndFlush(inventory);
+    stockBalanceService.updateStock(savedInventory.getItem().getId(), savedInventory.getQuantity(), savedInventory.getType());
   }
 
 
@@ -84,8 +86,8 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
-  public void save(Inventory inventory) {
-    inventoryRepository.saveAndFlush(inventory);
+  public Inventory save(Inventory inventory) {
+    return inventoryRepository.saveAndFlush(inventory);
   }
 
   private InventoryResponse mappingToResponse(Inventory inventory) {

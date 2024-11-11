@@ -16,7 +16,7 @@ public interface InventoryService {
   void add(CreateInventoryRequest createInventoryRequest);
   Inventory getById(Long id);
   Integer getStockByItemId(Long id);
-  void save(Inventory inventory);
+  Inventory save(Inventory inventory);
 
   boolean existByItemId(Long id);
 }

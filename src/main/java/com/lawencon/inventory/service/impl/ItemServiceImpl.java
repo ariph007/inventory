@@ -8,10 +8,13 @@ import com.lawencon.inventory.model.response.ItemResponse;
 import com.lawencon.inventory.model.response.Responses;
 import com.lawencon.inventory.model.response.PageResponse;
 import com.lawencon.inventory.persistence.entity.Item;
+import com.lawencon.inventory.persistence.entity.StockBalance;
 import com.lawencon.inventory.persistence.repository.ItemRepository;
 import com.lawencon.inventory.service.InventoryService;
 import com.lawencon.inventory.service.ItemService;
+import com.lawencon.inventory.service.StockBalanceService;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
@@ -22,11 +25,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
   private final ItemRepository itemRepository;
+
+  @Setter(onMethod_ = @Autowired, onParam_ = @Lazy)
+  private StockBalanceService stockBalanceService;
 
   @Setter(onMethod_ = @Autowired, onParam_ = @Lazy)
   private InventoryService inventoryService;
@@ -37,6 +44,7 @@ public class ItemServiceImpl implements ItemService {
     return mappingToResponse(getById(id), showStock);
   }
 
+  @Transactional
   @Override
   public Responses<List<ItemResponse>> findAll(PagingRequest pagingRequest, Boolean showStock) {
     Pageable pageable = PageRequest.of(pagingRequest.getPage(), pagingRequest.getPageSize());
@@ -68,6 +76,7 @@ public class ItemServiceImpl implements ItemService {
     itemRepository.delete(item);
   }
 
+  @Transactional
   @Override
   public void add(CreateItemRequest createItemRequest) {
     Item item = new Item();
@@ -87,12 +96,17 @@ public class ItemServiceImpl implements ItemService {
     return itemRepository.existsById(id);
   }
 
+
   private ItemResponse mappingToResponse(Item item, Boolean showStock){
     ItemResponse itemResponse = new ItemResponse();
     BeanUtils.copyProperties(item, itemResponse);
     if(showStock != null && showStock){
-      Integer stock = inventoryService.getStockByItemId(item.getId());
-      itemResponse.setStock(stock);
+      Optional<StockBalance> stock = stockBalanceService.getStockByItemId(item.getId());
+      if(stock.isPresent()){
+        itemResponse.setStock(stock.get().getCurrentBalance());
+      }else{
+        itemResponse.setStock(0);
+      }
     }
     return itemResponse;
   }

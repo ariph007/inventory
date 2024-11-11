@@ -11,11 +11,14 @@ import com.lawencon.inventory.persistence.entity.Inventory;
 import com.lawencon.inventory.persistence.entity.Inventory.Type;
 import com.lawencon.inventory.persistence.entity.Item;
 import com.lawencon.inventory.persistence.entity.Order;
+import com.lawencon.inventory.persistence.entity.StockBalance;
 import com.lawencon.inventory.persistence.repository.OrderRepository;
 import com.lawencon.inventory.service.InventoryService;
 import com.lawencon.inventory.service.ItemService;
 import com.lawencon.inventory.service.OrderService;
+import com.lawencon.inventory.service.StockBalanceService;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -31,6 +34,7 @@ public class OrderServiceImpl implements OrderService {
   private final OrderRepository orderRepository;
   private final ItemService itemService;
   private final InventoryService inventoryService;
+  private final StockBalanceService stockBalanceService;
 
   @Override
   public OrderResponse findById(Long id) {
@@ -68,7 +72,11 @@ public class OrderServiceImpl implements OrderService {
   public void add(CreateOrderRequest createOrderRequest) {
     validateItemExist(createOrderRequest.getItemId());
     //!check stock balance, if stock < order request quantity throw exception
-    Integer stock = inventoryService.getStockByItemId(createOrderRequest.getItemId());
+    Optional<StockBalance> stockBalance  = stockBalanceService.getStockByItemId(createOrderRequest.getItemId());
+    if(stockBalance.isEmpty()){
+      throw new CustomResponseException(HttpStatus.BAD_REQUEST, "Stock balance not found for the requested item.");
+    }
+    Integer stock = stockBalance.get().getCurrentBalance();
     if(stock < createOrderRequest.getQuantity()){
       throw new CustomResponseException(HttpStatus.BAD_REQUEST, "Insufficient stock available for the requested item.");
     }
@@ -81,8 +89,8 @@ public class OrderServiceImpl implements OrderService {
     inventory.setType(Type.W);
     inventory.setItem(orderSuccess.getItem());
     inventory.setQuantity(orderSuccess.getQuantity());
-    inventoryService.save(inventory);
-
+    Inventory savedInventory = inventoryService.save(inventory);
+    stockBalanceService.updateStock(savedInventory.getItem().getId(),savedInventory.getQuantity(), savedInventory.getType());
   }
 
   @Override
