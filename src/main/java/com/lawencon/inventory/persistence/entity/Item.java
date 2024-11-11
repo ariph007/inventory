@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ import org.hibernate.annotations.Where;
 
 
 @Entity
-@Table(name = "item")
+@Table(name = "item", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})})
 @Getter
 @Setter
 @ToString

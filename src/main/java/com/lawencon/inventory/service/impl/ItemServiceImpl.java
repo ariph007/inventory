@@ -80,6 +80,7 @@ public class ItemServiceImpl implements ItemService {
   @Transactional
   @Override
   public void add(CreateItemRequest createItemRequest) {
+    validateItemName(createItemRequest.getName());
     Item item = new Item();
     BeanUtils.copyProperties(createItemRequest, item);
     itemRepository.saveAndFlush(item);
@@ -110,6 +111,13 @@ public class ItemServiceImpl implements ItemService {
       }
     }
     return itemResponse;
+  }
+
+  private void validateItemName(String itemName){
+    boolean isItemNameExist = itemRepository.findByName(itemName).isPresent();
+    if(isItemNameExist){
+      throw  new CustomResponseException(HttpStatus.BAD_REQUEST, "Item name already exists");
+    }
   }
 
 }
