@@ -114,7 +114,7 @@ public class ItemServiceImpl implements ItemService {
   }
 
   private void validateItemName(String itemName){
-    boolean isItemNameExist = itemRepository.findByName(itemName).isPresent();
+    boolean isItemNameExist = itemRepository.existsByName(itemName);
     if(isItemNameExist){
       throw  new CustomResponseException(HttpStatus.BAD_REQUEST, "Item name already exists");
     }

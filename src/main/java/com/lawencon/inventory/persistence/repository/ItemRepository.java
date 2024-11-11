@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
-  Optional<Item> findByName(String name);
+  boolean existsByName(String name);
 }
